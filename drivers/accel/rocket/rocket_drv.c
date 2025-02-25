@@ -16,12 +16,14 @@
 
 #include "rocket_drv.h"
 #include "rocket_gem.h"
+#include "rocket_job.h"
 
 static int
 rocket_open(struct drm_device *dev, struct drm_file *file)
 {
 	struct rocket_device *rdev = to_rocket_device(dev);
 	struct rocket_file_priv *rocket_priv;
+	int ret;
 
 	rocket_priv = kzalloc(sizeof(*rocket_priv), GFP_KERNEL);
 	if (!rocket_priv)
@@ -30,7 +32,15 @@ rocket_open(struct drm_device *dev, struct drm_file *file)
 	rocket_priv->rdev = rdev;
 	file->driver_priv = rocket_priv;
 
+	ret = rocket_job_open(rocket_priv);
+	if (ret)
+		goto err_free;
+
 	return 0;
+
+err_free:
+	kfree(rocket_priv);
+	return ret;
 }
 
 static void
@@ -38,6 +48,7 @@ rocket_postclose(struct drm_device *dev, struct drm_file *file)
 {
 	struct rocket_file_priv *rocket_priv = file->driver_priv;
 
+	rocket_job_close(rocket_priv);
 	kfree(rocket_priv);
 }
 
@@ -46,6 +57,7 @@ static const struct drm_ioctl_desc rocket_drm_driver_ioctls[] = {
 	DRM_IOCTL_DEF_DRV(ROCKET_##n, rocket_ioctl_##func, 0)
 
 	ROCKET_IOCTL(CREATE_BO, create_bo),
+	ROCKET_IOCTL(SUBMIT, submit),
 };
 
 DEFINE_DRM_ACCEL_FOPS(rocket_accel_driver_fops);
@@ -244,6 +256,9 @@ static int rocket_device_runtime_suspend(struct device *dev)
 	for (unsigned int core = 0; core < rdev->num_cores; core++) {
 		if (dev != rdev->cores[core].dev)
 			continue;
+
+		if (!rocket_job_is_idle(&rdev->cores[core]))
+			return -EBUSY;
 
 		clk_disable_unprepare(rdev->cores[core].a_clk);
 		clk_disable_unprepare(rdev->cores[core].h_clk);

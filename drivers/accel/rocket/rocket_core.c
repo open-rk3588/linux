@@ -6,6 +6,7 @@
 #include <linux/pm_runtime.h>
 
 #include "rocket_core.h"
+#include "rocket_job.h"
 #include "rocket_registers.h"
 
 static int rocket_clk_init(struct rocket_core *core)
@@ -48,6 +49,10 @@ int rocket_core_init(struct rocket_core *core)
 	if (IS_ERR(core->iomem))
 		return PTR_ERR(core->iomem);
 
+	err = rocket_job_init(core);
+	if (err)
+		return err;
+
 	pm_runtime_use_autosuspend(dev);
 	pm_runtime_set_autosuspend_delay(dev, 50); /* ~3 frames */
 	pm_runtime_enable(dev);
@@ -68,4 +73,5 @@ int rocket_core_init(struct rocket_core *core)
 void rocket_core_fini(struct rocket_core *core)
 {
 	pm_runtime_disable(core->dev);
+	rocket_job_fini(core);
 }

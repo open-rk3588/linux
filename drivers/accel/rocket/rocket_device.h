@@ -11,6 +11,8 @@
 struct rocket_device {
 	struct drm_device ddev;
 
+	struct mutex sched_lock;
+
 	struct clk *clk_npu;
 	struct clk *pclk;
 

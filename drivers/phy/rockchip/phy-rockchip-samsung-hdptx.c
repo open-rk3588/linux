@@ -863,6 +863,11 @@ static int rk_hdptx_post_enable_lane(struct rk_hdptx_phy *hdptx)
 				       (val & HDPTX_O_PHY_RDY) &&
 				       (val & HDPTX_O_PLL_LOCK_DONE),
 				       100, 5000);
+
+	dev_info(hdptx->dev, "%s: GRF_HDPTX_STATUS[0x%x](ret=%d)=0x%x (PHY_RDY=%d, PHY_CLK_RDY=%d, PLL_LOCK_DONE=%d)\n",
+			__func__, GRF_HDPTX_STATUS, ret,
+			val, !!(val & HDPTX_O_PHY_RDY), !!(val & HDPTX_O_PHY_CLK_RDY), !!(val & HDPTX_O_PLL_LOCK_DONE));
+
 	if (ret) {
 		dev_err(hdptx->dev, "Failed to get PHY lane lock: %d\n", ret);
 		return ret;
@@ -1018,8 +1023,15 @@ static int rk_hdptx_ropll_tmds_cmn_config(struct rk_hdptx_phy *hdptx,
 	if (!cfg) {
 		if (rk_hdptx_phy_clk_pll_calc(rate, &rc)) {
 			cfg = &rc;
+			dev_warn(hdptx->dev,
+				"there is no suitable config for rate %u, using calculated config instead:\n",
+				rate);
+			dev_warn(hdptx->dev,
+				"bit_rate=%u, mdiv=%u, mdiv_afc=%u, pdiv=%u, refdiv=%u, sdiv=%u, iqdiv_rstn=%u, ref_clk_sel=%u, sdm_en=%u, sdm_rstn=%u, sdc_frac_en=%u, sdc_rstn=%u, sdm_clk_div=%u, sdm_deno=%u, sdm_num_sign=%u, sdm_num=%u, sdc_n=%u, sdc_num=%u, sdc_deno=%u, sdc_ndiv_rstn=%u, ssc_en=%u, ssc_fm_dev=%u, ssc_fm_freq=%u, ssc_clk_div_sel=%u, ana_cpp_ctrl=%u, ana_lpf_c_sel=%u, cd_tx_ser_rate_sel=%u\n",
+				cfg->bit_rate, cfg->pms_mdiv, cfg->pms_mdiv_afc, cfg->pms_pdiv, cfg->pms_refdiv, cfg->pms_sdiv, cfg->pms_iqdiv_rstn, cfg->ref_clk_sel, cfg->sdm_en, cfg->sdm_rstn, cfg->sdc_frac_en, cfg->sdc_rstn, cfg->sdm_clk_div, cfg->sdm_deno, cfg->sdm_num_sign, cfg->sdm_num, cfg->sdc_n, cfg->sdc_num, cfg->sdc_deno, cfg->sdc_ndiv_rstn, cfg->ssc_en, cfg->ssc_fm_dev, cfg->ssc_fm_freq, cfg->ssc_clk_div_sel, cfg->ana_cpp_ctrl, cfg->ana_lpf_c_sel, cfg->cd_tx_ser_rate_sel);
 		} else {
-			dev_err(hdptx->dev, "%s cannot find pll cfg\n", __func__);
+			dev_err(hdptx->dev, "%s: cannot find or calculate PLL config for rate %u\n",
+				__func__, rate);
 			return -EINVAL;
 		}
 	}

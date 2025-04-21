@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2022-2023 Corentin Labbe <clabbe@baylibre.com>
  */
-#include <asm/unaligned.h>
+#include <linux/unaligned.h>
 #include <linux/iopoll.h>
 #include "rk2_crypto.h"
 

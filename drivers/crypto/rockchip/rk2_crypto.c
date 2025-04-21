@@ -700,7 +700,7 @@ err_crypto:
 	return err;
 }
 
-static int rk2_crypto_remove(struct platform_device *pdev)
+static void rk2_crypto_remove(struct platform_device *pdev)
 {
 	struct rk2_crypto_dev *rkc = platform_get_drvdata(pdev);
 	struct rk2_crypto_dev *first;
@@ -719,7 +719,7 @@ static int rk2_crypto_remove(struct platform_device *pdev)
 	}
 	rk2_crypto_pm_exit(rkc);
 	crypto_engine_exit(rkc->engine);
-	return 0;
+	return;
 }
 
 static struct platform_driver crypto_driver = {

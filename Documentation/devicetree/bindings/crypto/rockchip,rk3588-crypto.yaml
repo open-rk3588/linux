@@ -60,6 +60,6 @@ examples:
       clocks = <&scmi_clk SCMI_CRYPTO_CORE>, <&scmi_clk SCMI_ACLK_SECURE_NS>,
                <&scmi_clk SCMI_HCLK_SECURE_NS>;
       clock-names = "core", "aclk", "hclk";
-      resets = <&scmi_reset SRST_CRYPTO_CORE>;
+      resets = <&scmi_reset SCMI_SRST_CRYPTO_CORE>;
       reset-names = "core";
     };

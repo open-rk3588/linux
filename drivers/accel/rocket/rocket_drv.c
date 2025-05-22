@@ -89,10 +89,13 @@ static int rocket_drm_bind(struct device *dev)
 	int err;
 
 	rdev = devm_drm_dev_alloc(dev, &rocket_drm_driver, struct rocket_device, ddev);
+	if (IS_ERR(rdev))
+		return PTR_ERR(rdev);
+
+	ddev = &rdev->ddev;
 	if (IS_ERR(ddev))
 		return PTR_ERR(ddev);
 
-	ddev = &rdev->ddev;
 	dev_set_drvdata(dev, rdev);
 
 	for_each_compatible_node(core_node, NULL, "rockchip,rk3588-rknn-core")

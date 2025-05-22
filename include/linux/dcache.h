@@ -162,6 +162,7 @@ struct dentry_operations {
 	struct dentry *(*d_real)(struct dentry *, enum d_real_type type);
 	bool (*d_unalias_trylock)(const struct dentry *);
 	void (*d_unalias_unlock)(const struct dentry *);
+	void (*d_canonical_path)(const struct path *, struct path *);
 } ____cacheline_aligned;
 
 /*
@@ -272,7 +273,7 @@ extern int path_has_submounts(const struct path *);
  * This adds the entry to the hash queues.
  */
 extern void d_rehash(struct dentry *);
- 
+
 extern void d_add(struct dentry *, struct inode *);
 
 /* used for rename() and baskets */

@@ -35,6 +35,7 @@ EXPORT_SYMBOL(cad_pid);
 enum reboot_mode reboot_mode DEFAULT_REBOOT_MODE;
 EXPORT_SYMBOL_GPL(reboot_mode);
 enum reboot_mode panic_reboot_mode = REBOOT_UNDEFINED;
+EXPORT_SYMBOL_GPL(panic_reboot_mode);
 
 static enum hw_protection_action hw_protection_action = HWPROT_ACT_SHUTDOWN;
 

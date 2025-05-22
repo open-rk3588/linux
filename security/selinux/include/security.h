@@ -96,6 +96,8 @@ struct selinux_state {
 #endif
 	bool initialized;
 	bool policycap[__POLICYDB_CAP_MAX];
+	bool android_netlink_route;
+	bool android_netlink_getneigh;
 
 	struct page *status_page;
 	struct mutex status_lock;
@@ -200,6 +202,16 @@ static inline bool selinux_policycap_netlink_xperm(void)
 {
 	return READ_ONCE(
 		selinux_state.policycap[POLICYDB_CAP_NETLINK_XPERM]);
+}
+
+static inline bool selinux_android_nlroute_getlink(void)
+{
+	return READ_ONCE(selinux_state.android_netlink_route);
+}
+
+static inline bool selinux_android_nlroute_getneigh(void)
+{
+	return READ_ONCE(selinux_state.android_netlink_getneigh);
 }
 
 static inline bool selinux_policycap_netif_wildcard(void)
@@ -398,5 +410,6 @@ extern void avtab_cache_init(void);
 extern void ebitmap_cache_init(void);
 extern void hashtab_cache_init(void);
 extern int security_sidtab_hash_stats(char *page);
+extern void selinux_nlmsg_init(void);
 
 #endif /* _SELINUX_SECURITY_H_ */
